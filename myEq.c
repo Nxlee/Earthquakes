@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "func.h"
 int main(int argc, char** argv) {
+   cleanInfo();
    return 0;
 }
