@@ -46,16 +46,59 @@ void pullInfo() {
    cleanInfo();
 }
 
+char* getMagnitude(char** extracted) {
+   char* magnitude;
+   strsep(extracted, " ");
+   magnitude = strsep(extracted, " ");
+   return magnitude;
+}
+
+char* getLocation(char** extracted) {
+   char* loc;
+   strsep(extracted, "- ");
+   loc = strsep(extracted, "<");
+   return loc;
+}
+
+char* getTime(char** extracted) {
+   char* time;
+   strsep(extracted, ">");
+   strsep(extracted, ">");
+   time = strsep(extracted, "<");
+   return time;
+}
+
+void printAll(char* mag, char* loc, char* time) {
+   if(!mag || !loc || !time) {
+      return;
+   }
+   printf("Time: %s\n", time);
+   printf("Location:%s\n", loc);
+   printf("Magnitude: %s\n\n", mag);
+}
+void extract(char* line) {
+   char* extracted;
+   char* magnitude;
+   char* location;
+   char* timestamp;
+
+   if((extracted = strstr(line, "</id><title>")) != 0) {
+      magnitude = getMagnitude(&extracted);
+      location = getLocation(&extracted);
+      timestamp = getTime(&extracted);
+   }
+   printAll(magnitude, location, timestamp);
+}
+
 void cleanInfo() {
    char* line;
    FILE* file = fopen("data", "r");
    line = getLine(file);
    while(line[0] != '\0') {
-      if(strstr(line, "</id><title>")) {
-         printf("%s\n", line);
-      }
+      extract(line);
       free(line);
       line = getLine(file);
    }
    free(line);
+   fclose(file);
 }
