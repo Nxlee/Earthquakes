@@ -114,10 +114,10 @@ void cleanInfo() {
 
 void setTime() {
    struct itimerval new;
-   new.it_interval.tv_sec = 1;
+   new.it_interval.tv_sec = 300;
    new.it_interval.tv_usec = 0;
 
-   new.it_value.tv_sec = 1;
+   new.it_value.tv_sec = 300;
    new.it_value.tv_usec = 0;
 
    setitimer(0, &new, 0);

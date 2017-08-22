@@ -1,12 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "func.h"
 int main(int argc, char** argv) {
-   runAuto();
-   while(1) {
+   if(argc > 1) {
+      if(!(strcmp(argv[1],"autopoll"))) {
+         pullInfo();
+         runAuto();
+      }
    }
    pullInfo();
-   /*cleanInfo();*/
-   
+
+
    return 0;
 }
