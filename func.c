@@ -2,7 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
+#include <sys/time.h>
+
 #include "func.h"
+
+static int update;
+
 char* getLine(FILE* file) {
    int i = 0;
    char *line;
@@ -68,6 +74,9 @@ char* getTime(char** extracted) {
    return time;
 }
 
+
+
+
 void printAll(char* mag, char* loc, char* time) {
    if(!mag || !loc || !time) {
       return;
@@ -81,13 +90,13 @@ void extract(char* line) {
    char* magnitude;
    char* location;
    char* timestamp;
-
    if((extracted = strstr(line, "</id><title>")) != 0) {
       magnitude = getMagnitude(&extracted);
       location = getLocation(&extracted);
       timestamp = getTime(&extracted);
    }
    printAll(magnitude, location, timestamp);
+   /*printf("%s\n", line);*/
 }
 
 void cleanInfo() {
@@ -102,3 +111,45 @@ void cleanInfo() {
    free(line);
    fclose(file);
 }
+
+void setTime() {
+   struct itimerval new;
+   new.it_interval.tv_sec = 1;
+   new.it_interval.tv_usec = 0;
+
+   new.it_value.tv_sec = 1;
+   new.it_value.tv_usec = 0;
+
+   setitimer(0, &new, 0);
+
+}
+
+void update_handler(int signo) {
+   update = 1;
+}
+
+void runAuto() {
+   struct sigaction act;
+   sigset_t x;
+   sigemptyset(&x);
+   act.sa_handler = update_handler;
+   sigaddset(&x, SIGALRM);
+
+
+   if(sigaction(SIGALRM, &act, NULL) == -1) {
+      perror("sigaction");
+      exit(1);
+   }
+   setTime();
+
+   while(1) {
+      if(update == 1) {
+         pullInfo();
+         update = 0;
+      }
+   }
+}
+
+
+
+

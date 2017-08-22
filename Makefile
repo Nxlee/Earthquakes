@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -ansi -pedantic -g
+CFLAGS = -std=c99 -Wall -D_POSIX_C_SOURCE -g
 MAIN = myEq
 OBJS = myEq.o func.o
 all : $(MAIN)
