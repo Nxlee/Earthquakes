@@ -45,11 +45,51 @@ char* getLine(FILE* file) {
    return line;
 }
 
+void checkInfo() {
+   FILE* info1 = fopen("Info","r");
+   FILE* info2 = fopen("Info2", "r");
+   char* line1;
+   char* line2;
+
+   if(!info2) {
+      system("cp Info Info2");
+      system("python sendscript.py");
+      remove("Info");
+      fclose(info1);
+      fclose(info2);
+      return;
+   }
+
+   line1 = getLine(info1);
+   line2 = getLine(info2);
+
+   while(line1[0] != '\0') {
+      if(strcmp(line1, line2)) {
+         system("cp Info Info2");
+         system("python sendscript.py");
+         remove("Info");
+         free(line1);
+         free(line2);
+         return;
+      }
+      free(line1);
+      free(line2);
+      line1 = getLine(info1);
+      line2 = getLine(info2);
+   }
+   free(line1);
+   free(line2);
+
+   remove("Info");
+
+}
 
 
 void pullInfo() {
    system("wget -O data https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.atom");
    cleanInfo();
+   checkInfo();
+   /*Check info, if info is same as info2 copy to info2, send info and delete*/
 }
 
 char* getMagnitude(char** extracted) {
@@ -81,9 +121,11 @@ void printAll(char* mag, char* loc, char* time) {
    if(!mag || !loc || !time) {
       return;
    }
+   freopen("Info", "a", stdout);
    printf("Time: %s\n", time);
    printf("Location:%s\n", loc);
    printf("Magnitude: %s\n\n", mag);
+   fflush(stdout);
 }
 void extract(char* line) {
    char* extracted;
@@ -143,6 +185,7 @@ void runAuto() {
    setTime();
 
    while(1) {
+      fflush(stdout);
       if(update == 1) {
          pullInfo();
          update = 0;
